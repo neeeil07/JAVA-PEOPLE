@@ -37,6 +37,7 @@ import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import org.jdatepicker.DateModel;
+import utils.Constants;
 
 /**
  * This class starts the visual part of the application and programs and manages
@@ -118,25 +119,18 @@ public class ControllerImplementation implements IController, ActionListener {
     private void handleDataStorageSelection() {
         String daoSelected = ((javax.swing.JCheckBox) (dSS.getAccept()[1])).getText();
         dSS.dispose();
-        switch (daoSelected) {
-            case "ArrayList":
-                dao = new DAOArrayList();
-                break;
-            case "HashMap":
-                dao = new DAOHashMap();
-                break;
-            case "File":
-                setupFileStorage();
-                break;
-            case "File (Serialization)":
-                setupFileSerialization();
-                break;
-            case "SQL - Database":
-                setupSQLDatabase();
-                break;
-            case "JPA - Database":
-                setupJPADatabase();
-                break;
+        if (daoSelected.equals(Constants.ARRAY_LIST)) {
+            dao = new DAOArrayList();
+        } else if (daoSelected.equals(Constants.HASH_MAP)) {
+        dao = new DAOHashMap();
+        } else if (daoSelected.equals(Constants.FILE)) {
+            setupFileStorage();
+        } else if (daoSelected.equals(Constants.FILE_SERIALIZATION)) {
+            setupFileSerialization();
+        } else if (daoSelected.equals(Constants.SQL_DATABASE)) {
+            setupSQLDatabase();
+        } else if (daoSelected.equals(Constants.JPA_DATABASE)) {
+            setupJPADatabase();
         }
         setupMenu();
     }
