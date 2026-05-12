@@ -17,6 +17,7 @@ import view.Menu;
 import view.Read;
 import view.ReadAll;
 import view.Update;
+import view.Count;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -59,6 +60,7 @@ public class ControllerImplementation implements IController, ActionListener {
     private Delete delete;
     private Update update;
     private ReadAll readAll;
+    private Count count;
 
     /**
      * This constructor allows the controller to know which data storage option
@@ -113,6 +115,8 @@ public class ControllerImplementation implements IController, ActionListener {
             handleReadAll();
         } else if (e.getSource() == menu.getDeleteAll()) {
             handleDeleteAll();
+        } else if (e.getSource() == menu.getCount()) {
+            handleCount();
         }
     }
 
@@ -122,7 +126,7 @@ public class ControllerImplementation implements IController, ActionListener {
         if (daoSelected.equals(Constants.ARRAY_LIST)) {
             dao = new DAOArrayList();
         } else if (daoSelected.equals(Constants.HASH_MAP)) {
-        dao = new DAOHashMap();
+            dao = new DAOHashMap();
         } else if (daoSelected.equals(Constants.FILE)) {
             setupFileStorage();
         } else if (daoSelected.equals(Constants.FILE_SERIALIZATION)) {
@@ -211,6 +215,7 @@ public class ControllerImplementation implements IController, ActionListener {
         menu.getDelete().addActionListener(this);
         menu.getReadAll().addActionListener(this);
         menu.getDeleteAll().addActionListener(this);
+        menu.getCount().addActionListener(this);
     }
 
     private void handleInsertAction() {
@@ -352,21 +357,36 @@ public class ControllerImplementation implements IController, ActionListener {
         Object[] options = {"Yes", "No"};
         //int answer = JOptionPane.showConfirmDialog(menu, "Are you sure to delete all people registered?", "Delete All - People v1.1.0", 0, 0);
         int answer = JOptionPane.showOptionDialog(
-        menu,
-        "Are you sure you want to delete all registered people?", 
-        "Delete All - People v1.1.0",
-        JOptionPane.YES_NO_OPTION,
-        JOptionPane.WARNING_MESSAGE,
-        null,
-        options,
-        options[1] // Default selection is "No"
-    );
+                menu,
+                "Are you sure you want to delete all registered people?",
+                "Delete All - People v1.1.0",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE,
+                null,
+                options,
+                options[1] // Default selection is "No"
+        );
 
         if (answer == 0) {
             deleteAll();
         }
     }
-    
+
+    public void handleCount() {
+        try {
+            int total = dao.count();
+            count = new Count(menu, true);
+            count.getCount().setText(String.valueOf(total));
+            count.setLocationRelativeTo(menu);
+            count.setVisible(true);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(menu,
+                    "Error counting people: " + ex.getMessage(),
+                    "Count - People v1.1.0",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
     /**
      * This function inserts the Person object with the requested NIF, if it
      * doesn't exist. If there is any access problem with the storage device,

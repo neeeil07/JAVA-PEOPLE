@@ -173,4 +173,9 @@ public class DAOFile implements IDAO {
         insert(p);
     }
 
+    @Override
+    public int count() throws Exception {
+        return readAll().size();
+    }
+
 }

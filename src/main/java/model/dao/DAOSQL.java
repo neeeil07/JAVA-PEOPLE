@@ -217,4 +217,9 @@ public class DAOSQL implements IDAO {
             f.delete();
     }
 
+    @Override
+    public int count() throws Exception {
+        return readAll().size();
+    }
+
 }
