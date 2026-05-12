@@ -185,6 +185,20 @@ public class ControllerImplementation implements IController, ActionListener {
                         + "photo varchar(200) );");
                 stmt.close();
                 conn.close();
+                // Arquitectura: Uso de rutas relativas y separadores dinámicos del SO
+                String separator = java.io.File.separator;
+                String targetPath = "SQL_DataBase" + separator + "Photos";
+
+                java.io.File photosFolder = new java.io.File(targetPath);
+
+                if (!photosFolder.exists()) {
+                    boolean isCreated = photosFolder.mkdirs();
+                    if (!isCreated) {
+                        System.err.println("Error de I/O: No se pudo crear la ruta: " + photosFolder.getAbsolutePath());
+                    } else {
+                        System.out.println("Directorio creado exitosamente en: " + photosFolder.getAbsolutePath());
+                    }
+                }
             }
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(dSS, "SQL-DDBB structure not created. Closing application.", "SQL_DDBB - People v1.1.0", JOptionPane.ERROR_MESSAGE);
@@ -323,6 +337,7 @@ public class ControllerImplementation implements IController, ActionListener {
                 p.setPhoto((ImageIcon) update.getPhoto().getIcon());
             }
             update(p);
+            JOptionPane.showMessageDialog(null, "Person updated successfully!");
             update.getReset().doClick();
         }
     }
@@ -532,6 +547,7 @@ public class ControllerImplementation implements IController, ActionListener {
     public void deleteAll() {
         try {
             dao.deleteAll();
+            JOptionPane.showMessageDialog(menu, "All persons have been deleted successfully!", "Message", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception ex) {
             if (ex instanceof FileNotFoundException || ex instanceof IOException
                     || ex instanceof ParseException || ex instanceof ClassNotFoundException
