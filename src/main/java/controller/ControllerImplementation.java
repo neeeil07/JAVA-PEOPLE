@@ -240,7 +240,14 @@ public class ControllerImplementation implements IController, ActionListener {
     }
 
     private void handleInsertPerson() {
+        String phoneRegex = "^\\+?[0-9]{1,4}?[-.\\s]?\\(?\\d{1,3}\\)?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}$";
+        String phone = insert.getPhoneNumber().getText();
+        if (phone == null || phone.trim().isEmpty() || !phone.matches(phoneRegex)) {
+            JOptionPane.showMessageDialog(insert, "Invalid phone number format.", "Insert Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         Person p = new Person(insert.getNam().getText(), insert.getNif().getText());
+        p.setPhoneNumber(phone);
         if (insert.getDateOfBirth().getModel().getValue() != null) {
             p.setDateOfBirth(((GregorianCalendar) insert.getDateOfBirth().getModel().getValue()).getTime());
         }
@@ -262,6 +269,11 @@ public class ControllerImplementation implements IController, ActionListener {
         Person pNew = read(p);
         if (pNew != null) {
             read.getNam().setText(pNew.getName());
+            if (pNew.getPhoneNumber() != null) {
+                read.getPhoneNumber().setText(pNew.getPhoneNumber());
+            } else {
+                read.getPhoneNumber().setText("");
+            }
             if (pNew.getDateOfBirth() != null) {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(pNew.getDateOfBirth());
@@ -306,10 +318,16 @@ public class ControllerImplementation implements IController, ActionListener {
             Person pNew = read(p);
             if (pNew != null) {
                 update.getNam().setEnabled(true);
+                update.getPhoneNumber().setEnabled(true);
                 update.getDateOfBirth().setEnabled(true);
                 update.getPhoto().setEnabled(true);
                 update.getUpdate().setEnabled(true);
                 update.getNam().setText(pNew.getName());
+                if (pNew.getPhoneNumber() != null) {
+                    update.getPhoneNumber().setText(pNew.getPhoneNumber());
+                } else {
+                    update.getPhoneNumber().setText("");
+                }
                 if (pNew.getDateOfBirth() != null) {
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(pNew.getDateOfBirth());
@@ -330,7 +348,14 @@ public class ControllerImplementation implements IController, ActionListener {
 
     public void handleUpdatePerson() {
         if (update != null) {
+            String phoneRegex = "^\\+?[0-9]{1,4}?[-.\\s]?\\(?\\d{1,3}\\)?[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,4}[-.\\s]?\\d{1,9}$";
+            String phone = update.getPhoneNumber().getText();
+            if (phone == null || phone.trim().isEmpty() || !phone.matches(phoneRegex)) {
+                JOptionPane.showMessageDialog(update, "Invalid phone number format.", "Update Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
             Person p = new Person(update.getNam().getText(), update.getNif().getText());
+            p.setPhoneNumber(phone);
             if ((update.getDateOfBirth().getModel().getValue()) != null) {
                 p.setDateOfBirth(((GregorianCalendar) update.getDateOfBirth().getModel().getValue()).getTime());
             }
