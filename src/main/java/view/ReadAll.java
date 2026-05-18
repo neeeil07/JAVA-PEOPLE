@@ -13,12 +13,14 @@ public class ReadAll extends javax.swing.JDialog {
     public ReadAll(java.awt.Frame parent, boolean modal) {
         super(parent, modal);
         initComponents();
+        ((javax.swing.table.DefaultTableModel) table.getModel()).addColumn("Email");
         DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
         centerRenderer.setHorizontalAlignment((int)JTable.CENTER_ALIGNMENT);
         table.getColumnModel().getColumn(0).setCellRenderer( centerRenderer );
         table.getColumnModel().getColumn(1).setCellRenderer( centerRenderer );
         table.getColumnModel().getColumn(2).setCellRenderer( centerRenderer );
         table.getColumnModel().getColumn(3).setCellRenderer( centerRenderer );
+        table.getColumnModel().getColumn(4).setCellRenderer( centerRenderer );
         setLocationRelativeTo(null);
     }
 
