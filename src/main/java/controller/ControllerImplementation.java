@@ -42,6 +42,7 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import org.jdatepicker.DateModel;
 import utils.Constants;
+import static utils.DataValidation.isValidEmail;
 
 /**
  * This class starts the visual part of the application and programs and manages
@@ -250,8 +251,15 @@ public class ControllerImplementation implements IController, ActionListener {
             JOptionPane.showMessageDialog(insert, "Invalid phone number format.", "Insert Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
+        String email = insert.getEmail().getText();
+        if (email == null || email.trim().isEmpty() || !utils.DataValidation.isValidEmail(email)) {
+            JOptionPane.showMessageDialog(insert, "Invalid email format.", "Insert Error", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         Person p = new Person(insert.getNam().getText(), insert.getNif().getText());
         p.setPhoneNumber(phone);
+        p.setEmail(email);
+        
         if (insert.getDateOfBirth().getModel().getValue() != null) {
             p.setDateOfBirth(((GregorianCalendar) insert.getDateOfBirth().getModel().getValue()).getTime());
         }
@@ -277,6 +285,11 @@ public class ControllerImplementation implements IController, ActionListener {
                 read.getPhoneNumber().setText(pNew.getPhoneNumber());
             } else {
                 read.getPhoneNumber().setText("");
+            }
+            if (pNew.getEmail() != null) {
+                read.getEmail().setText(pNew.getEmail());
+            }else {
+                read.getEmail().setText("");
             }
             if (pNew.getDateOfBirth() != null) {
                 Calendar calendar = Calendar.getInstance();
@@ -329,6 +342,7 @@ public class ControllerImplementation implements IController, ActionListener {
             if (pNew != null) {
                 update.getNam().setEnabled(true);
                 update.getPhoneNumber().setEnabled(true);
+                update.getEmail().setEnabled(true);
                 update.getDateOfBirth().setEnabled(true);
                 update.getPhoto().setEnabled(true);
                 update.getUpdate().setEnabled(true);
@@ -338,6 +352,14 @@ public class ControllerImplementation implements IController, ActionListener {
                 } else {
                     update.getPhoneNumber().setText("");
                 }
+                if (pNew.getEmail() != null) {
+                    update.getEmail().setText(pNew.getEmail());
+                    update.getEmail().setEnabled(true);
+                } else {
+                    update.getEmail().setText("");
+                    update.getEmail().setEnabled(true);
+                }
+                                
                 if (pNew.getDateOfBirth() != null) {
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(pNew.getDateOfBirth());
@@ -364,8 +386,16 @@ public class ControllerImplementation implements IController, ActionListener {
                 JOptionPane.showMessageDialog(update, "Invalid phone number format.", "Update Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+            
+            String email = update.getEmail().getText();
+            if (email == null || email.trim().isEmpty() || !isValidEmail(email)) {
+                JOptionPane.showMessageDialog(update, "Invalid email format.", "Update Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        
             Person p = new Person(update.getNam().getText(), update.getNif().getText());
             p.setPhoneNumber(phone);
+            p.setEmail(email);
             if ((update.getDateOfBirth().getModel().getValue()) != null) {
                 p.setDateOfBirth(((GregorianCalendar) update.getDateOfBirth().getModel().getValue()).getTime());
             }
@@ -399,6 +429,11 @@ public class ControllerImplementation implements IController, ActionListener {
                 } else {
                     model.setValueAt("no", i, 3);
                 }
+                if (s.get(i).getEmail() != null) {
+                    model.setValueAt(s.get(i).getEmail(), i, 4);
+                } else {
+                    model.setValueAt("", i, 4);
+                }                
             }
             readAll.getExportData().addActionListener(this);
             readAll.setVisible(true);
