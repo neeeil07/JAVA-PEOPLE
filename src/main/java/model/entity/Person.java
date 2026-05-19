@@ -23,6 +23,7 @@ public class Person implements Serializable {
     private String nif;
     private String name;
     private String phoneNumber;
+    private String email;
     private Date dateOfBirth;
     @Transient
     private ImageIcon photo;
@@ -87,6 +88,14 @@ public class Person implements Serializable {
         this.phoneNumber = phoneNumber;
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    
     public String getNif() {
         return nif;
     }
@@ -164,6 +173,7 @@ public class Person implements Serializable {
     public String toString() {
         return "Person {" + "Name = " + name + ", NIF = " + nif
                 + ", PhoneNumber = " + phoneNumber
+                + ", Email = " + email
                 + ", DateOfBirth = " + dateOfBirth + ", Photo = " + (photo != null) + "}";
     }
 
