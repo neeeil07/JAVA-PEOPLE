@@ -39,6 +39,8 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import org.jdatepicker.DateModel;
 import utils.Constants;
+import utils.LoginService;
+import view.Login;
 
 /**
  * This class starts the visual part of the application and programs and manages
@@ -61,6 +63,8 @@ public class ControllerImplementation implements IController, ActionListener {
     private Update update;
     private ReadAll readAll;
     private Count count;
+    private Login login;
+    private LoginService loginService;
 
     /**
      * This constructor allows the controller to know which data storage option
@@ -71,6 +75,7 @@ public class ControllerImplementation implements IController, ActionListener {
      */
     public ControllerImplementation(DataStorageSelection dSS) {
         this.dSS = dSS;
+        this.loginService = new LoginService();
         ((JButton) (dSS.getAccept()[0])).addActionListener(this);
     }
 
@@ -93,7 +98,11 @@ public class ControllerImplementation implements IController, ActionListener {
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == dSS.getAccept()[0]) {
             handleDataStorageSelection();
-        } else if (e.getSource() == menu.getInsert()) {
+        } else if (login != null && e.getSource() == login.getLoginButton()) {
+            handleLogin();
+        } else if (login != null && e.getSource() == login.getResetButton()) {
+            handleLoginReset();
+        } else if (menu != null && e.getSource() == menu.getInsert()) {
             handleInsertAction();
         } else if (insert != null && e.getSource() == insert.getInsert()) {
             handleInsertPerson();
@@ -136,7 +145,7 @@ public class ControllerImplementation implements IController, ActionListener {
         } else if (daoSelected.equals(Constants.JPA_DATABASE)) {
             setupJPADatabase();
         }
-        setupMenu();
+        setupLogin();
     }
 
     private void setupFileStorage() {
@@ -154,6 +163,32 @@ public class ControllerImplementation implements IController, ActionListener {
             }
         }
         dao = new DAOFile();
+    }
+
+    private void setupLogin() {
+        login = new Login();
+        login.setLocationRelativeTo(null);
+        login.setVisible(true);
+        login.getLoginButton().addActionListener(this);
+        login.getResetButton().addActionListener(this);
+    }
+
+    private void handleLogin() {
+        String username = login.getUsernameField().getText();
+        String password = new String(login.getPasswordField().getPassword());
+
+        if (loginService.authenticate(username, password)) {
+            JOptionPane.showMessageDialog(login, "Login successful.", "Login - People v1.1.0", JOptionPane.INFORMATION_MESSAGE);
+            login.dispose();
+            setupMenu();
+        } else {
+            JOptionPane.showMessageDialog(login, "Invalid username or password.", "Login Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void handleLoginReset() {
+        login.getUsernameField().setText("");
+        login.getPasswordField().setText("");
     }
 
     private void setupFileSerialization() {
@@ -300,12 +335,12 @@ public class ControllerImplementation implements IController, ActionListener {
         if (delete != null) {
             int confirm = JOptionPane.showConfirmDialog(null,
                     "Are you sure you want to delete this person?", delete.getTitle(), JOptionPane.YES_NO_OPTION);
-            if (confirm == JOptionPane.YES_OPTION) { 
+            if (confirm == JOptionPane.YES_OPTION) {
                 Person p = new Person(delete.getNif().getText());
                 delete(p);
                 delete.getReset().doClick();
-                JOptionPane.showMessageDialog(null, 
-                    "Person deleted successfully!");
+                JOptionPane.showMessageDialog(null,
+                        "Person deleted successfully!");
             }
         }
     }
