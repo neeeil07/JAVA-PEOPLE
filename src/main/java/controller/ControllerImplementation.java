@@ -39,6 +39,7 @@ import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 import org.jdatepicker.DateModel;
 import utils.Constants;
+import static utils.DataValidation.validatePostalCode;
 
 /**
  * This class starts the visual part of the application and programs and manages
@@ -182,7 +183,12 @@ public class ControllerImplementation implements IController, ActionListener {
                         + "nif varchar(9) primary key not null, "
                         + "name varchar(50), "
                         + "dateOfBirth DATE, "
-                        + "photo varchar(200) );");
+                        + "photo varchar(200),"
+                        + "postalCode int);");
+                
+                stmt.executeUpdate("ALTER TABLE " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE()
+                    + " ADD COLUMN IF NOT EXISTS postalCode INT DEFAULT 0;");
+                
                 stmt.close();
                 conn.close();
                 // Arquitectura: Uso de rutas relativas y separadores dinámicos del SO
@@ -246,6 +252,9 @@ public class ControllerImplementation implements IController, ActionListener {
         if (insert.getPhoto().getIcon() != null) {
             p.setPhoto((ImageIcon) insert.getPhoto().getIcon());
         }
+        if (insert.getPostalCode() != null) {
+            p.setPostalCode(Integer.parseInt(insert.getPostalCode().getText()));
+        }
         insert(p);
         insert.getReset().doClick();
     }
@@ -261,6 +270,7 @@ public class ControllerImplementation implements IController, ActionListener {
         Person pNew = read(p);
         if (pNew != null) {
             read.getNam().setText(pNew.getName());
+            read.getPostalCode().setText(String.valueOf(pNew.getPostalCode()));
             if (pNew.getDateOfBirth() != null) {
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(pNew.getDateOfBirth());
@@ -313,8 +323,10 @@ public class ControllerImplementation implements IController, ActionListener {
                 update.getNam().setEnabled(true);
                 update.getDateOfBirth().setEnabled(true);
                 update.getPhoto().setEnabled(true);
-                update.getUpdate().setEnabled(true);
+//                update.getUpdate().setEnabled(true);
                 update.getNam().setText(pNew.getName());
+                update.getPostalCode().setEnabled(true);
+                update.getPostalCode().setText(String.valueOf(pNew.getPostalCode()));
                 if (pNew.getDateOfBirth() != null) {
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(pNew.getDateOfBirth());
@@ -342,6 +354,7 @@ public class ControllerImplementation implements IController, ActionListener {
             if ((ImageIcon) (update.getPhoto().getIcon()) != null) {
                 p.setPhoto((ImageIcon) update.getPhoto().getIcon());
             }
+            p.setPostalCode(Integer.parseInt(update.getPostalCode().getText()));
             update(p);
             JOptionPane.showMessageDialog(null, "Person updated successfully!");
             update.getReset().doClick();
@@ -369,6 +382,7 @@ public class ControllerImplementation implements IController, ActionListener {
                 } else {
                     model.setValueAt("no", i, 3);
                 }
+                model.setValueAt(String.valueOf(s.get(i).getPostalCode()), i, 4);
             }
             readAll.setVisible(true);
         }
@@ -419,6 +433,10 @@ public class ControllerImplementation implements IController, ActionListener {
     public void insert(Person p) {
         try {
             if (dao.read(p) == null) {
+                if (!validatePostalCode(String.valueOf(p.getPostalCode()))) {
+                throw new PersonException("Postal code " + p.getPostalCode() 
+                    + " is not a valid Spanish postal code.");
+                }       
                 dao.insert(p);
                 JOptionPane.showMessageDialog(insert, "Person inserted succesfully!", "Insert - People v1.1.0", JOptionPane.INFORMATION_MESSAGE);
             } else {

@@ -25,6 +25,7 @@ public class Person implements Serializable{
     private ImageIcon photo;
     @Lob
     private byte[] photoOnlyJPA;
+    private int postalCode;
 
     public Person(){
         
@@ -56,12 +57,14 @@ public class Person implements Serializable{
      * @param nif
      * @param dateOfBirth
      * @param photo
+     * @param postalCode
      */
-    public Person(String name, String nif, Date dateOfBirth, ImageIcon photo) {
+    public Person(String name, String nif, Date dateOfBirth, ImageIcon photo, int postalCode) {
         this.name = name;      
         this.nif = nif;
         this.dateOfBirth = dateOfBirth;
         this.photo = photo;
+        this.postalCode = postalCode;
     }
 
     //Getters and Setters
@@ -103,6 +106,14 @@ public class Person implements Serializable{
 
     public void setPhotoOnlyJPA(byte[] photoOnlyJPA) {
         this.photoOnlyJPA = photoOnlyJPA;
+    }
+    
+    public int getPostalCode() {
+        return postalCode;
+    }
+    
+    public void setPostalCode(int postalCode) {
+        this.postalCode = postalCode;
     }
         
     /**
@@ -147,7 +158,7 @@ public class Person implements Serializable{
     @Override
     public String toString() {
         return "Person {" + "Name = " + name + ", NIF = " + nif
-                + ", DateOfBirth = " + dateOfBirth + ", Photo = " + (photo!=null) + "}";
+                + ", DateOfBirth = " + dateOfBirth + ", Photo = " + (photo!=null) + ", Postal Code = " + postalCode + "}";
     }
 
 }

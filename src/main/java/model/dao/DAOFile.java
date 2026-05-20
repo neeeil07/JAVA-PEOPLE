@@ -54,7 +54,7 @@ public class DAOFile implements IDAO {
                 if (!data[3].equals("null")) {
                     photo = new ImageIcon(data[3]);
                 }
-                personToRead = new Person(data[0], data[1], date, photo);
+                personToRead = new Person(data[0], data[1], date, photo, Integer.parseInt(data[4]));
                 break;
             }
             line = br.readLine();
@@ -83,7 +83,7 @@ public class DAOFile implements IDAO {
             if (!data[3].equals("null")) {
                 photo = new ImageIcon(data[3]);
             }
-            people.add(new Person(data[0], data[1], date, photo));
+            people.add(new Person(data[0], data[1], date, photo, Integer.parseInt(data[4])));
             line = br.readLine();
         }
         br.close();
@@ -124,9 +124,9 @@ public class DAOFile implements IDAO {
             }
             outB.flush();
             outB.close();
-            bw.write(fileName + "\n");
+            bw.write(fileName + "\t" + p.getPostalCode() + "\n");
         } else {
-            bw.write("null" + "\n");
+            bw.write("null" + "\t" + p.getPostalCode() + "\n");
         }
         bw.flush();
         bw.close();
@@ -148,7 +148,7 @@ public class DAOFile implements IDAO {
                     photoFile.delete();
                 }
             } else {
-                textoNuevo += d[0] + "\t" + d[1] + "\t" + d[2] + "\t" + d[3]
+                textoNuevo += d[0] + "\t" + d[1] + "\t" + d[2] + "\t" + d[3] + "\t" + d[4]
                         + "\n";
             }
         }
