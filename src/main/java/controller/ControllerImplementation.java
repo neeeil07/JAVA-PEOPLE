@@ -45,6 +45,7 @@ import utils.Constants;
 import utils.LoginService;
 import view.Login;
 import static utils.DataValidation.isValidEmail;
+import static utils.DataValidation.validatePostalCode;
 
 /**
  * This class starts the visual part of the application and programs and manages
@@ -223,7 +224,12 @@ public class ControllerImplementation implements IController, ActionListener {
                         + "nif varchar(9) primary key not null, "
                         + "name varchar(50), "
                         + "dateOfBirth DATE, "
-                        + "photo varchar(200) );");
+                        + "photo varchar(200),"
+                        + "postalCode int);");
+                
+                stmt.executeUpdate("ALTER TABLE " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE()
+                    + " ADD COLUMN IF NOT EXISTS postalCode INT DEFAULT 0;");
+                
                 stmt.close();
                 conn.close();
                 // Arquitectura: Uso de rutas relativas y separadores dinámicos del SO
@@ -301,6 +307,9 @@ public class ControllerImplementation implements IController, ActionListener {
         if (insert.getPhoto().getIcon() != null) {
             p.setPhoto((ImageIcon) insert.getPhoto().getIcon());
         }
+        if (insert.getPostalCode() != null) {
+            p.setPostalCode(Integer.parseInt(insert.getPostalCode().getText()));
+        }
         insert(p);
         insert.getReset().doClick();
     }
@@ -316,6 +325,7 @@ public class ControllerImplementation implements IController, ActionListener {
         Person pNew = read(p);
         if (pNew != null) {
             read.getNam().setText(pNew.getName());
+            read.getPostalCode().setText(String.valueOf(pNew.getPostalCode()));
             if (pNew.getPhoneNumber() != null) {
                 read.getPhoneNumber().setText(pNew.getPhoneNumber());
             } else {
@@ -380,8 +390,10 @@ public class ControllerImplementation implements IController, ActionListener {
                 update.getEmail().setEnabled(true);
                 update.getDateOfBirth().setEnabled(true);
                 update.getPhoto().setEnabled(true);
-                update.getUpdate().setEnabled(true);
+//                update.getUpdate().setEnabled(true);
                 update.getNam().setText(pNew.getName());
+                update.getPostalCode().setEnabled(true);
+                update.getPostalCode().setText(String.valueOf(pNew.getPostalCode()));
                 if (pNew.getPhoneNumber() != null) {
                     update.getPhoneNumber().setText(pNew.getPhoneNumber());
                 } else {
@@ -437,6 +449,7 @@ public class ControllerImplementation implements IController, ActionListener {
             if ((ImageIcon) (update.getPhoto().getIcon()) != null) {
                 p.setPhoto((ImageIcon) update.getPhoto().getIcon());
             }
+            p.setPostalCode(Integer.parseInt(update.getPostalCode().getText()));
             update(p);
             JOptionPane.showMessageDialog(null, "Person updated successfully!");
             update.getReset().doClick();
@@ -451,7 +464,7 @@ public class ControllerImplementation implements IController, ActionListener {
             readAll = new ReadAll(menu, true);
             DefaultTableModel model = (DefaultTableModel) readAll.getTable().getModel();
             for (int i = 0; i < s.size(); i++) {
-                model.addRow(new Object[i]);
+                model.addRow(new Object[6]);
                 model.setValueAt(s.get(i).getNif(), i, 0);
                 model.setValueAt(s.get(i).getName(), i, 1);
                 if (s.get(i).getDateOfBirth() != null) {
@@ -464,10 +477,11 @@ public class ControllerImplementation implements IController, ActionListener {
                 } else {
                     model.setValueAt("no", i, 3);
                 }
+                model.setValueAt(String.valueOf(s.get(i).getPostalCode()), i, 4);
                 if (s.get(i).getEmail() != null) {
-                    model.setValueAt(s.get(i).getEmail(), i, 4);
+                    model.setValueAt(s.get(i).getEmail(), i, 5);
                 } else {
-                    model.setValueAt("", i, 4);
+                    model.setValueAt("", i, 5);
                 }                
             }
             readAll.getExportData().addActionListener(this);
@@ -547,6 +561,10 @@ public class ControllerImplementation implements IController, ActionListener {
     public void insert(Person p) {
         try {
             if (dao.read(p) == null) {
+                if (!validatePostalCode(String.valueOf(p.getPostalCode()))) {
+                throw new PersonException("Postal code " + p.getPostalCode() 
+                    + " is not a valid Spanish postal code.");
+                }       
                 dao.insert(p);
                 JOptionPane.showMessageDialog(insert, "Person inserted succesfully!", "Insert - People v1.1.0", JOptionPane.INFORMATION_MESSAGE);
             } else {

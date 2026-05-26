@@ -32,4 +32,8 @@ public class DataValidation {
     return email != null && email.matches(emailRegex);
     }
 
+    public static boolean validatePostalCode(String postalCode) {
+        String regex = "^(0[1-9]|[1-4][0-9]|5[0-2])[0-9]{3}$";
+        return postalCode.matches(regex);
+    }
 }

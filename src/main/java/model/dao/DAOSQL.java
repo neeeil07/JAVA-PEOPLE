@@ -33,8 +33,8 @@ public class DAOSQL implements IDAO {
 
     private final String SQL_SELECT_ALL = "SELECT * FROM " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE() + ";";
     private final String SQL_SELECT = "SELECT * FROM " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE() + " WHERE (nif = ?);";
-    private final String SQL_INSERT = "INSERT INTO " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE() + " (nif, name, dateOfBirth, photo) VALUES (?, ?, ?, ?);";
-    private final String SQL_UPDATE = "UPDATE " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE() + " SET name = ?, dateOfBirth = ?, photo = ? WHERE (nif = ?);";
+    private final String SQL_INSERT = "INSERT INTO " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE() + " (nif, name, dateOfBirth, photo, postalCode) VALUES (?, ?, ?, ?, ?);";
+    private final String SQL_UPDATE = "UPDATE " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE() + " SET name = ?, dateOfBirth = ?, photo = ?, postalCode = ? WHERE (nif = ?);";
     private final String SQL_DELETE = "DELETE FROM " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE() + " WHERE (nif = ";
     private final String SQL_DELETE_ALL = "TRUNCATE " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE();
 
@@ -70,6 +70,8 @@ public class DAOSQL implements IDAO {
             if (photo != null) {
                 pReturn.setPhoto(new ImageIcon(photo));
             }
+            int postalCode = rs.getInt("postalCode");
+            pReturn = new Person(name, nif, date, photo != null ? new ImageIcon(photo) : null, postalCode);
         }
         rs.close();
         instruction.close();
@@ -91,10 +93,11 @@ public class DAOSQL implements IDAO {
             String name = rs.getString("name");
             Date date = rs.getDate("dateOfBirth");
             String photo = rs.getString("photo");
+            int postalCode = rs.getInt("postalCode");
             if (photo != null) {
-                people.add(new Person(nif, name, date, new ImageIcon(photo)));
+                people.add(new Person(nif, name, date, new ImageIcon(photo), postalCode));
             } else {
-                people.add(new Person(nif, name, date, null));
+                people.add(new Person(nif, name, date, null, postalCode));
             }
         }
         rs.close();
@@ -154,6 +157,7 @@ public class DAOSQL implements IDAO {
         } else {
             instruction.setString(4, null);
         }
+        instruction.setInt(5, p.getPostalCode());
         instruction.executeUpdate();
         instruction.close();
         disconnect(conn);
@@ -196,7 +200,8 @@ public class DAOSQL implements IDAO {
                     + ".png");
             photoFile.delete();
         }
-        instruction.setString(4, p.getNif());
+        instruction.setInt(4, p.getPostalCode());   
+        instruction.setString(5, p.getNif());
         instruction.executeUpdate();
         instruction.close();
         disconnect(conn);

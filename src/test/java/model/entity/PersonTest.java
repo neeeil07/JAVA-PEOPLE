@@ -15,11 +15,31 @@ class PersonTest {
     private String name = "John Doe";
     private Date dateOfBirth = new Date();
     private ImageIcon photo = new ImageIcon();
+    private int postalCode = 55555 ;
+
+    /**
+     * Get the value of postalCode
+     *
+     * @return the value of postalCode
+     */
+    public int getPostalCode() {
+        return postalCode;
+    }
+
+    /**
+     * Set the value of postalCode
+     *
+     * @param postalCode new value of postalCode
+     */
+    public void setPostalCode(int postalCode) {
+        this.postalCode = postalCode;
+    }
+
 
     @BeforeEach
     void setUp() {
         person = new Person(nif);
-        personWithFullData = new Person(name, nif, dateOfBirth, photo);
+        personWithFullData = new Person(name, nif, dateOfBirth, photo, postalCode);
     }
 
     @Test
