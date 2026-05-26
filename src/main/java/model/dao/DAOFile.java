@@ -131,6 +131,63 @@ public class DAOFile implements IDAO {
         bw.flush();
         bw.close();
     }
+    
+    public void export(ArrayList<Person> people, File file) throws IOException {
+        String sep = ";";
+        DateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        String date = dateFormat.format(new Date());
+        FileWriter fw = new FileWriter(file);
+        BufferedWriter bw = new BufferedWriter(fw);
+        bw.write("NIF" + sep + "Name" + sep + "Date of Birth" + sep + "Photo");
+        bw.newLine();
+        for (Person p : people) {
+            bw.write(p.getNif() + sep + p.getName() + sep + 
+                     p.getDateOfBirth() + sep + 
+                     (p.getPhoto() != null ? "yes" : "no"));
+            bw.newLine();
+        }
+        bw.flush();
+        bw.close();
+    }
+//        String sep = File.separator;
+//        FileWriter fw;
+//        BufferedWriter bw;
+
+//        fw = new FileWriter(Routes.FILE.getDataFile(), true);
+//        bw = new BufferedWriter(fw);
+//        if (p.getDateOfBirth() != null) {
+//            DateFormat dateFormat = new SimpleDateFormat("yyy/MM/dd");
+//            String dateAsString = dateFormat.format(p.getDateOfBirth());
+//            bw.write(p.getName() + "\t" + p.getNif() + "\t" + dateAsString + "\t");
+//        } else {
+//            bw.write(p.getName() + "\t" + p.getNif() + "\t" + "null" + "\t");
+//        }
+//        if (p.getPhoto() != null) {
+//            FileOutputStream out;
+//            BufferedOutputStream outB;
+//            String fileName = Routes.FILE.getFolderPhotos() + sep + p.getNif() + ".png";         
+//            out = new FileOutputStream(fileName);
+//            outB = new BufferedOutputStream(out);
+//            BufferedImage bi = new BufferedImage(p.getPhoto().getImage().getWidth(null),
+//                    p.getPhoto().getImage().getHeight(null),
+//                    BufferedImage.TYPE_INT_ARGB);
+//            bi.getGraphics().drawImage(p.getPhoto().getImage(), 0, 0, null);
+//            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//            ImageIO.write(bi, "png", baos);
+//            baos.flush();
+//            byte[] img = baos.toByteArray();
+//            baos.close();
+//            for (int i = 0; i < img.length; i++) {
+//                outB.write(img[i]);
+//            }
+//            outB.flush();
+//            outB.close();
+//            bw.write(fileName + "\n");
+//        } else {
+//            bw.write("null" + "\n");
+//        }
+//        bw.flush();
+//        bw.close();
 
     @Override
     public void delete(Person p) throws IOException {

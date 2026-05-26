@@ -27,6 +27,11 @@ public class DataValidation {
         return nifNoLetter + letter[Integer.parseInt(nifNoLetter)%23];
     }
     
+    public static boolean isValidEmail(String email) {
+    String emailRegex = "^[a-zA-Z0-9_+&-]+(?:\\.[a-zA-Z0-9_+&-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$";
+    return email != null && email.matches(emailRegex);
+    }
+
     public static boolean validatePostalCode(String postalCode) {
         String regex = "^(0[1-9]|[1-4][0-9]|5[0-2])[0-9]{3}$";
         return postalCode.matches(regex);
