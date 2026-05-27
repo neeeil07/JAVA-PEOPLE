@@ -18,15 +18,16 @@ public class LoginService {
 
     public LoginService() {
         validUsers = new ArrayList<>();
-        validUsers.add(new User("User", "12345678"));
+        validUsers.add(new User("admin",    "admin123", "ADMIN"));
+        validUsers.add(new User("employee", "emp123",   "EMPLOYEE"));
     }
 
-    public boolean authenticate(String username, String password) {
+    public User authenticate(String username, String password) {
         for (User user : validUsers) {
             if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
-                return true;
+                return user;
             }
         }
-        return false;
+        return null;
     }
 }
