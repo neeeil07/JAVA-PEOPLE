@@ -40,6 +40,7 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
+import model.entity.User;
 import org.jdatepicker.DateModel;
 import utils.Constants;
 import utils.LoginService;
@@ -70,6 +71,7 @@ public class ControllerImplementation implements IController, ActionListener {
     private Count count;
     private Login login;
     private LoginService loginService;
+    private User loggedUser;
 
     /**
      * This constructor allows the controller to know which data storage option
@@ -184,7 +186,9 @@ public class ControllerImplementation implements IController, ActionListener {
         String username = login.getUsernameField().getText();
         String password = new String(login.getPasswordField().getPassword());
 
-        if (loginService.authenticate(username, password)) {
+        User user = loginService.authenticate(username, password);
+        if (user != null) {
+            this.loggedUser = user;  // ← guardamos el objeto completo
             JOptionPane.showMessageDialog(login, "Login successful.", "Login - People v1.1.0", JOptionPane.INFORMATION_MESSAGE);
             login.dispose();
             setupMenu();
@@ -226,10 +230,10 @@ public class ControllerImplementation implements IController, ActionListener {
                         + "dateOfBirth DATE, "
                         + "photo varchar(200),"
                         + "postalCode int);");
-                
+
                 stmt.executeUpdate("ALTER TABLE " + Routes.DB.getDbServerDB() + "." + Routes.DB.getDbServerTABLE()
-                    + " ADD COLUMN IF NOT EXISTS postalCode INT DEFAULT 0;");
-                
+                        + " ADD COLUMN IF NOT EXISTS postalCode INT DEFAULT 0;");
+
                 stmt.close();
                 conn.close();
                 // Arquitectura: Uso de rutas relativas y separadores dinámicos del SO
@@ -270,13 +274,22 @@ public class ControllerImplementation implements IController, ActionListener {
     private void setupMenu() {
         menu = new Menu();
         menu.setVisible(true);
-        menu.getInsert().addActionListener(this);
+
         menu.getRead().addActionListener(this);
-        menu.getUpdate().addActionListener(this);
-        menu.getDelete().addActionListener(this);
         menu.getReadAll().addActionListener(this);
-        menu.getDeleteAll().addActionListener(this);
         menu.getCount().addActionListener(this);
+
+        if ("ADMIN".equals(loggedUser.getRole())) {
+            menu.getInsert().addActionListener(this);
+            menu.getUpdate().addActionListener(this);
+            menu.getDelete().addActionListener(this);
+            menu.getDeleteAll().addActionListener(this);
+        } else {
+            menu.getInsert().setEnabled(false);
+            menu.getUpdate().setEnabled(false);
+            menu.getDelete().setEnabled(false);
+            menu.getDeleteAll().setEnabled(false);
+        }
     }
 
     private void handleInsertAction() {
@@ -300,7 +313,7 @@ public class ControllerImplementation implements IController, ActionListener {
         Person p = new Person(insert.getNam().getText(), insert.getNif().getText());
         p.setPhoneNumber(phone);
         p.setEmail(email);
-        
+
         if (insert.getDateOfBirth().getModel().getValue() != null) {
             p.setDateOfBirth(((GregorianCalendar) insert.getDateOfBirth().getModel().getValue()).getTime());
         }
@@ -333,7 +346,7 @@ public class ControllerImplementation implements IController, ActionListener {
             }
             if (pNew.getEmail() != null) {
                 read.getEmail().setText(pNew.getEmail());
-            }else {
+            } else {
                 read.getEmail().setText("");
             }
             if (pNew.getDateOfBirth() != null) {
@@ -406,7 +419,7 @@ public class ControllerImplementation implements IController, ActionListener {
                     update.getEmail().setText("");
                     update.getEmail().setEnabled(true);
                 }
-                                
+
                 if (pNew.getDateOfBirth() != null) {
                     Calendar calendar = Calendar.getInstance();
                     calendar.setTime(pNew.getDateOfBirth());
@@ -433,13 +446,13 @@ public class ControllerImplementation implements IController, ActionListener {
                 JOptionPane.showMessageDialog(update, "Invalid phone number format.", "Update Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-            
+
             String email = update.getEmail().getText();
             if (email == null || email.trim().isEmpty() || !isValidEmail(email)) {
                 JOptionPane.showMessageDialog(update, "Invalid email format.", "Update Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
-        
+
             Person p = new Person(update.getNam().getText(), update.getNif().getText());
             p.setPhoneNumber(phone);
             p.setEmail(email);
@@ -482,22 +495,21 @@ public class ControllerImplementation implements IController, ActionListener {
                     model.setValueAt(s.get(i).getEmail(), i, 5);
                 } else {
                     model.setValueAt("", i, 5);
-                }                
+                }
             }
             readAll.getExportData().addActionListener(this);
             readAll.setVisible(true);
         }
     }
-    
-    
+
     public void handleExportData() {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
             String fileName = "people_data_" + sdf.format(new Date()) + ".csv";
- 
+
             JFileChooser fc = new JFileChooser();
             fc.setSelectedFile(new File(fileName));
- 
+
             // Si el usuario pulsa guardar
             if (fc.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
                 //TODO1 xonseguir ruta dekl filechooser
@@ -513,8 +525,6 @@ public class ControllerImplementation implements IController, ActionListener {
             System.getLogger(ControllerImplementation.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
         }
     }
-    
-    
 
     public void handleDeleteAll() {
         Object[] options = {"Yes", "No"};
@@ -562,9 +572,9 @@ public class ControllerImplementation implements IController, ActionListener {
         try {
             if (dao.read(p) == null) {
                 if (!validatePostalCode(String.valueOf(p.getPostalCode()))) {
-                throw new PersonException("Postal code " + p.getPostalCode() 
-                    + " is not a valid Spanish postal code.");
-                }       
+                    throw new PersonException("Postal code " + p.getPostalCode()
+                            + " is not a valid Spanish postal code.");
+                }
                 dao.insert(p);
                 JOptionPane.showMessageDialog(insert, "Person inserted succesfully!", "Insert - People v1.1.0", JOptionPane.INFORMATION_MESSAGE);
             } else {
